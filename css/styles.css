@@ -364,6 +364,10 @@ section[id] { scroll-margin-top: 64px; }
 /* Lista de 6 itens (2 linhas de 3): alinha a 1ª coluna de cada linha */
 @media (min-width: 768px) {
   .lista-3.seis li:nth-child(3n+1) { padding-left: 0; }
+  /* Linha incompleta (ex.: 5 itens): preenche a célula vazia com o fundo, sem bloco cinza */
+  .lista-3.seis:has(> li:last-child:nth-child(3n+2))::after {
+    content: ""; background: var(--preto);
+  }
 }
 .lista-3 h3 { text-wrap: balance; }
 .lista-3 p { font-size: 0.9375rem; }
