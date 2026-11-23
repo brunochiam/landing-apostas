@@ -340,7 +340,11 @@ section[id] { scroll-margin-top: 64px; }
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--vermelho);
 }
 .rodape p { margin: 0 0 8px; }
-.assinatura img { width: 180px; }
+/* Marca oficial PMC, versão horizontal monocromática branca (manual v1.4, p. 4).
+   Altura 56px: acima da redução máxima de 1 cm (p. 7).
+   Área de proteção z ≈ metade da altura (28px): garantida pelos espaços de 32px/40px ao redor. */
+.assinatura { padding: 0; }
+.assinatura img { height: 56px; width: auto; }
 .rotulo-academico {
   margin-top: 40px; padding-top: 24px;
   border-top: 1px solid var(--linha);
