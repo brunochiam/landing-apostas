@@ -1,0 +1,142 @@
+/* ==========================================================================
+   Animações de entrada (camada por cima do layout; ver js/animacoes.js)
+   - Estados iniciais só valem com html.js E sem prefers-reduced-motion.
+   - Sem JS, com reduced motion ou se o script falhar, tudo aparece no estado final.
+   - Ajuste o ritmo global pelas variáveis abaixo.
+   ========================================================================== */
+
+:root {
+  --easing: cubic-bezier(.22, 1, .36, 1);   /* desaceleração suave, sem bounce */
+  --duracao: 700ms;                         /* textos e cards */
+  --duracao-traco: 1100ms;                  /* grafismos SVG e faixas (máx. 1200ms) */
+  --duracao-icone: 900ms;                   /* traço dos ícones */
+  --duracao-foto: 900ms;                    /* revelação das fotos */
+  --duracao-contagem: 1200ms;               /* contagem dos números (lida pelo JS) */
+  --desloc: 16px;                           /* subida padrão */
+  --desloc-hero: 20px;                      /* subida do hero */
+  --desloc-rotulo: 12px;                    /* rótulo entra da esquerda */
+  --stagger: 90ms;                          /* textos e dados */
+  --stagger-lista: 80ms;                    /* cards das listas */
+  --stagger-canal: 60ms;                    /* canais de ajuda */
+  --stagger-linha: 90ms;                    /* linhas dos títulos */
+  --atraso-apoio: 150ms;                    /* .apoio depois do título */
+  --atraso-ressalva: 300ms;                 /* .ressalva depois do .apoio */
+  --atraso-destaque: 500ms;                 /* rabisco / faixa-frase depois do texto */
+}
+
+/* Barra de leitura (criada pelo JS) e menu ativo: valem mesmo com reduced motion */
+.barra-leitura {
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: var(--vermelho);
+  transform: scaleX(0); transform-origin: 0 50%;
+  pointer-events: none;
+}
+.menu a { transition: color 300ms var(--easing); }
+.menu a.ativo {
+  color: var(--branco-papel);
+  text-decoration: underline;
+  text-decoration-color: var(--vermelho);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+/* Títulos divididos em linhas: a máscara folga para não cortar itálico nem a faixa.
+   Grid evita colapso das margens negativas (altura final idêntica). */
+.titulo.dividido { display: grid; }
+.linha-mascara {
+  display: block;
+  padding: 0.22em 0.25em 0.22em 0.12em;
+  margin: -0.22em -0.25em -0.22em -0.12em;
+}
+.linha { display: block; }
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* Entre o parse do HTML e a execução do script: evita o conteúdo "piscar"
+     (visibility não muda layout; o fallback do <head> remove html.js em 4s) */
+  html.js:not(.anim-ok) .topo,
+  html.js:not(.anim-ok) .hero-chamada,
+  html.js:not(.anim-ok) .secao,
+  html.js:not(.anim-ok) .rodape { visibility: hidden; }
+
+  /* ---------- Transição base de todo elemento animado ---------- */
+  html.js [data-anim] {
+    transition:
+      opacity var(--duracao) var(--easing) var(--atraso, 0ms),
+      transform var(--duracao) var(--easing) var(--atraso, 0ms),
+      clip-path var(--duracao-foto) var(--easing) var(--atraso, 0ms);
+  }
+
+  /* Revelação instantânea (elemento já passou da tela) */
+  html.js .imediato,
+  html.js .imediato *,
+  html.js .imediato::before { transition: none !important; }
+
+  /* clip-path não interpola até "none": o estado final precisa ser explícito */
+  html.js [data-anim="foto"],
+  html.js [data-anim] .faixa,
+  html.js [data-anim] .faixa-frase { clip-path: inset(0 0 0 0); }
+
+  /* ---------- Estados iniciais por tipo ---------- */
+  html.js [data-anim="fade"]:not(.visivel) { opacity: 0; }
+  html.js [data-anim="subir"]:not(.visivel) { opacity: 0; transform: translateY(var(--desloc)); }
+  html.js [data-anim="subir-hero"]:not(.visivel) { opacity: 0; transform: translateY(var(--desloc-hero)); }
+  html.js [data-anim="rotulo"]:not(.visivel) { opacity: 0; transform: translateX(calc(var(--desloc-rotulo) * -1)); }
+
+  /* Títulos: cada linha sobe dentro da máscara */
+  /* Corta só na vertical: palavras longas que já passam da coluna não são cortadas */
+  html.js [data-anim="titulo"]:not(.feito) .linha-mascara { overflow: hidden; }
+  @supports (overflow: clip) {
+    html.js [data-anim="titulo"]:not(.feito) .linha-mascara { overflow: visible; overflow-y: clip; }
+  }
+  html.js [data-anim="titulo"] .linha {
+    transition: transform var(--duracao) var(--easing)
+      calc(var(--atraso, 0ms) + var(--i, 0) * var(--stagger-linha));
+  }
+  html.js [data-anim="titulo"]:not(.visivel) .linha { transform: translateY(140%); }
+
+  /* Faixa vermelha do título: wipe esquerda → direita (sem tocar no transform) */
+  html.js [data-anim="titulo"] .faixa {
+    transition: clip-path var(--duracao-traco) var(--easing)
+      calc(var(--atraso, 0ms) + var(--i, 0) * var(--stagger-linha) + var(--duracao) * 0.6);
+  }
+  html.js [data-anim="titulo"]:not(.visivel) .faixa { clip-path: inset(0 100% 0 0); }
+
+  /* Rabisco: o traço se desenha (background-size) */
+  html.js [data-anim] .rabisco {
+    transition: background-size var(--duracao-traco) var(--easing)
+      calc(var(--atraso, 0ms) + var(--atraso-destaque));
+  }
+  html.js [data-anim]:not(.visivel) .rabisco { background-size: 0 0.42em; }
+
+  /* "a sua perda.": mesmo wipe da faixa */
+  html.js [data-anim] .faixa-frase {
+    transition: clip-path var(--duracao-traco) var(--easing)
+      calc(var(--atraso, 0ms) + var(--atraso-destaque));
+  }
+  html.js [data-anim]:not(.visivel) .faixa-frase { clip-path: inset(0 100% 0 0); }
+
+  /* Divisor vertical: cresce de cima para baixo mantendo o skew */
+  html.js [data-anim="divisor"]::before {
+    transform-origin: 50% 0;
+    transition: transform var(--duracao-icone) var(--easing) var(--atraso, 0ms);
+  }
+  html.js [data-anim="divisor"]:not(.visivel)::before { transform: skewX(-14deg) scaleY(0); }
+  html.js [data-anim="divisor"].visivel::before { transform: skewX(-14deg) scaleY(1); }
+
+  /* Traços SVG (ícones e grafismos): pathLength=1 aplicado pelo JS */
+  html.js [data-traco] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset var(--duracao-icone) var(--easing) var(--atraso, 0ms);
+  }
+  html.js [data-anim="traco"] [data-traco] { transition-duration: var(--duracao-traco); }
+  html.js .visivel [data-traco] { stroke-dashoffset: 0; }
+
+  /* Fotos: revelação de baixo para cima + leve zoom de saída */
+  html.js [data-anim="foto"]:not(.visivel) { clip-path: inset(100% 0 0 0); }
+  html.js [data-anim="foto"] img {
+    transition: transform calc(var(--duracao-foto) + 300ms) var(--easing) var(--atraso, 0ms);
+  }
+  html.js [data-anim="foto"]:not(.visivel) img { transform: scale(1.06); }
+}

@@ -11,6 +11,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/animacoes.css">
+  <!-- Ativa os estados iniciais das animações só com JS. Se js/animacoes.js não
+       carregar em 4s, remove a classe e mostra tudo. -->
+  <script>
+    (function (h) {
+      h.classList.add('js');
+      setTimeout(function () { if (!h.classList.contains('anim-ok')) h.classList.remove('js'); }, 4000);
+    })(document.documentElement);
+  </script>
+  <script src="js/animacoes.js" defer></script>
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -106,17 +116,17 @@
 
         <div class="dados" aria-label="Dados sobre apostas online">
           <div class="dado">
-            <span class="numero">52%</span>
+            <span class="numero" data-valor="52" data-sufixo="%">52%</span>
             <p>dos apostadores declararam ter renda de até dois salários mínimos.</p>
             <cite>Fonte: DataSenado, Panorama Político 2024 (set. 2024)</cite>
           </div>
           <div class="dado">
-            <span class="numero">R$ 3 bi</span>
+            <span class="numero" data-valor="3" data-prefixo="R$ " data-sufixo=" bi">R$ 3 bi</span>
             <p>foram enviados via Pix a empresas de apostas, em agosto de 2024, por 5 milhões de pessoas de famílias beneficiárias do Bolsa Família.</p>
             <cite>Fonte: Banco Central do Brasil, Estudo Especial nº 119/2024</cite>
           </div>
           <div class="dado">
-            <span class="numero">R$ 24 bi</span>
+            <span class="numero" data-valor="24" data-prefixo="R$ " data-sufixo=" bi">R$ 24 bi</span>
             <p>por ano: é a estimativa de quanto os brasileiros perdem em plataformas de apostas online.</p>
             <cite>Fonte: Itaú Unibanco, Macro Visão (13/08/2024)</cite>
           </div>
