@@ -36,6 +36,7 @@
     ['.dados .dado', 'subir', function (el, i) { return Math.min(i, 5) * ms('--stagger'); }],
     ['.canal', 'fade', function (el, i) { return Math.min(i, 5) * ms('--stagger-canal'); }],
     ['.aviso-urgencia', 'fade'],
+    ['.acesso-direto', 'fade'],
     ['.foto:not(.foto-vazia)', 'foto'],
     ['.foto-vazia', 'fade'],
     ['.grafismo', 'traco'],
